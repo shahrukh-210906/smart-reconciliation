@@ -1,99 +1,101 @@
-# **SmartRec \- Intelligent Reconciliation System**
+# **BookIt | Faculty-Student Appointment System**
 
-SmartRec is a high-performance MERN stack application designed to automate the reconciliation of large-volume financial datasets. It compares external user files against an internal "System Truth" (Database) to identify matches, discrepancies, and missing records.
+**BookIt** is a full-stack MERN application designed to simplify and automate the process of scheduling appointments between faculty and students. It eliminates the back-and-forth of manual scheduling by providing real-time availability, AI-assisted time slots, and secure attendance verification.
 
-## **🚀 Key Features**
+## **🛠 Features**
 
-* **High-Volume Processing:** Capable of ingesting and matching 50,000+ transaction records in seconds.  
-* **Role-Based Access:**  
-  * **Admin:** Can update the "System Truth" (internal database) and view audit logs.  
-  * **Analyst:** Can upload daily files for reconciliation and resolve discrepancies.  
-  * **Viewer:** Read-only access to dashboards.  
-* **Real-Time Analytics:** Interactive Dashboard with Pie & Bar charts showing match percentages.  
-* **Automated Matching Logic:**  
-  * **Exact Match:** IDs and Amounts match perfectly.  
-  * **Partial Match:** IDs match, but amounts differ slightly (\<2% variance).  
-  * **Unmatched:** ID exists but amount differs significantly, or ID does not exist.  
-* **Audit Trail:** Immutable logs of all uploads and manual resolutions.
+* **Dual Dashboard:** Tailored experiences for both Faculty (to manage slots) and Students (to book them).  
+* **AI-Powered Scheduling:** Suggests optimal meeting times based on user preferences and historical data.  
+* **Attendance Verification:** Secure PIN and QR code generation for confirming meetings.  
+* **Real-Time Notifications:** Live status updates for appointment approvals and cancellations.
 
-## **📂 Data Folder & Test Files**
+## **🏗 Tech Stack**
 
-To help you test the system's performance and logic, we have provided a data/ folder containing three key files:
+* **Frontend:** React.js, Tailwind CSS, Lucide Icons  
+* **Backend:** Node.js, Express.js  
+* **Database:** MongoDB (Atlas or Local)  
+* **Authentication:** JSON Web Tokens (JWT)
 
-| File Name | Description | Recommended Usage |
-| :---- | :---- | :---- |
-| **system\_record.csv** | A large dataset containing **50,000 unique records**. This acts as your "Internal Database" or Ledger. | **Admin Only:** Upload this via the "Update System Records" feature to populate the database. |
-| **matched\_test.csv** | A file containing the first 10,000 records from Master1.csv. | **Analyst/User:** Upload this to verify successful reconciliation ("Green" matches). |
-| **unmatched\_test.csv** | A file containing manipulated data (different amounts, wrong IDs). | **Analyst/User:** Upload this to test "Red" (Unmatched) and "Yellow" (Partial) results. |
+## **🚀 Getting Started**
 
-## **🛠️ Installation & Setup**
+### **Prerequisites**
 
-### **1\. Prerequisites**
+* **Node.js** (v16.0.0 or higher)  
+* **npm** or **yarn**  
+* **MongoDB** (A local instance or a free [MongoDB Atlas](https://www.mongodb.com/cloud/atlas) account)
 
-Ensure you have the following installed:
+### **Installation**
 
-* **Node.js** (v14 or higher)  
-* **MongoDB** (Local or Atlas)
+1. **Clone the Repository**  
+   git clone \[https://github.com/your-username/bookit.git\](https://github.com/your-username/bookit.git)  
+   cd bookit
 
-### **2\. Backend Setup**
+2. **Install Backend Dependencies**  
+   cd backend  
+   npm install
 
-cd backend  
-npm install  
-\# Create a .env file with your MONGO\_URI and JWT\_SECRET  
-\# Example: MONGO\_URI=mongodb://localhost:27017/smart\_rec\_db  
-node server.js
+3. **Install Frontend Dependencies**  
+   cd ../frontend  
+   npm install
 
-### **3\. Frontend Setup**
+## **🔌 Database Connectivity & Environment Variables**
 
-\# In a new terminal  
-cd ..  
-npm install  
+To run this project, you must connect it to a MongoDB database. Follow these steps to set up your environment variables.
+
+1. Navigate to the backend folder.  
+2. Create a file named .env.  
+3. Add the following line, choosing either the **Atlas** or **Local** method:
+
+### **Option 1: MongoDB Atlas (Cloud)**
+
+If you want to use a cloud database, log in to MongoDB Atlas, create a cluster, and get your connection string.
+
+\# backend/.env  
+MONGO\_URI=mongodb+srv://\<username\>:\<password\>@clustername.mongodb.net/bookit?retryWrites=true\&w=majority  
+PORT=5000  
+JWT\_SECRET=your\_super\_secret\_key\_here
+
+### **Option 2: Local MongoDB Server**
+
+If you have MongoDB Community Server installed on your machine:
+
+\# backend/.env  
+MONGO\_URI=mongodb://localhost:27017/bookit  
+PORT=5000  
+JWT\_SECRET=your\_super\_secret\_key\_here
+
+## **🏁 Running the Application**
+
+### **1\. Start the Backend**
+
+From the backend directory:
+
 npm run dev
 
-## **📖 How to Use (Step-by-Step Guide)**
+*The server will typically start on http://localhost:5000.*
 
-### **Step 1: Initialize the System (Admin Only)**
+### **2\. Start the Frontend**
 
-*Before any reconciliation can happen, the system needs a "Source of Truth".*
+Open a new terminal window and navigate to the frontend directory:
 
-1. **Log in as Admin**  
-   * Email: admin@test.com  
-   * Password: password123  
-2. Navigate to the **Dashboard**.  
-3. Locate the dark blue box labeled **"Update System Records"**.  
-4. Click **"Upload Master CSV"**.  
-5. Select the file: data/Master1.csv (The 50k record file).  
-6. **Wait:** The system will process and insert 50,000 records into MongoDB. You will see a success message when done.
+npm start
 
-### **Step 2: Run a Reconciliation (Analyst)**
+*The React app will open automatically on http://localhost:3000.*
 
-*Now verify that the system can correctly identify matches.*
+## **📁 Project Structure**
 
-1. **Log in as Analyst** (or remain as Admin).  
-   * Email: analyst@test.com  
-   * Password: password123  
-2. Go to the **"Upload & Map"** tab.  
-3. Upload the file: data/matched\_test.csv.  
-4. **Map the Columns:** Ensure the dropdowns match your CSV headers (e.g., Transaction ID \-\> TransactionID).  
-5. Click **"Start Reconciliation"**.  
-6. **Result:**  
-   * You should see a table full of **Matched (Green)** records.  
-   * The Dashboard will update to show 10,000 matched records.
+bookit/  
+├── backend/          \# Express server, Models, Routes, Controllers  
+│   ├── models/       \# Mongoose schemas  
+│   ├── routes/       \# API endpoints  
+│   └── .env          \# Environment variables (Add this\!)  
+├── frontend/         \# React application  
+│   ├── src/  
+│   │   ├── components/  
+│   │   ├── pages/  
+│   │   └── context/  \# State management  
+└── README.md
 
-### **Step 3: Test Discrepancies**
+## **🛡 License**
 
-*Verify that the system correctly flags errors.*
-
-1. Go to **"Upload & Map"**.  
-2. Upload data/unmatched\_test.csv.  
-3. Map columns and click **Start**.  
-4. **Result:**  
-   * **Unmatched (Red):** Records where amounts don't match the system.  
-   * **Partial Match (Yellow):** Records with small variance (\<2%).  
-   * **Duplicate (Purple):** Records uploaded more than once in the same file.
-
-## **📊 Troubleshooting**
-
-* **"400 Bad Request" on Upload:** Ensure you mapped *all* mandatory columns (Transaction ID and Amount) before clicking Start.  
-* **"System Records Empty":** Make sure you ran Step 1 (Admin Upload) before trying to reconcile.  
-* **"Duplicate File":** The system prevents re-uploading the exact same file to avoid duplicate data. To test again, rename the file or add a new row.
+This project is licensed under the MIT License. Feel free to use and modify it for your own purposes.
