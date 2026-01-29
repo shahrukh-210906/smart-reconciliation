@@ -1,4 +1,4 @@
-const fs = require('fs');
+const { Readable } = require('stream'); // Required to convert buffer to stream
 const csv = require('csv-parser');
 const SystemRecord = require('../models/SystemRecord');
 const ReconciliationResult = require('../models/ReconciliationResult');
@@ -21,7 +21,8 @@ const determineStatus = (uploaded, system) => {
   return 'Unmatched'; 
 };
 
-const processFileAsync = async (jobId, filePath, mapping) => {
+// Updated to accept buffer instead of filePath
+const processFileAsync = async (jobId, buffer, mapping) => {
   const results = [];
   const seenIds = new Set();
   
@@ -30,7 +31,8 @@ const processFileAsync = async (jobId, filePath, mapping) => {
     const sysMap = new Map(systemRecords.map(rec => [rec.transactionId, rec]));
     const refMap = new Map(systemRecords.map(rec => [rec.referenceNumber, rec]));
 
-    const stream = fs.createReadStream(filePath).pipe(csv({
+    // Create a readable stream from the memory buffer
+    const stream = Readable.from(buffer).pipe(csv({
       mapHeaders: ({ header }) => header.trim()
     }));
 
@@ -81,7 +83,7 @@ const processFileAsync = async (jobId, filePath, mapping) => {
       matchedCount: results.filter(r => r.status === 'Matched').length
     });
 
-    if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+    // fs.unlinkSync is removed because there is no local file to delete
 
   } catch (error) {
     console.error(error);
@@ -91,15 +93,16 @@ const processFileAsync = async (jobId, filePath, mapping) => {
 
 exports.uploadData = async (req, res) => {
   try {
+    if (!req.file) return res.status(400).json({ msg: 'No file uploaded' });
+
     const existingJob = await UploadJob.findOne({
       fileName: req.file.originalname,
       status: 'Completed'
     }).sort({ createdAt: -1 });
 
     if (existingJob) {
-      if (req.file && fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
       return res.status(200).json({ 
-        msg: 'File previously processed by a user. Returning existing results.', 
+        msg: 'File previously processed. Returning existing results.', 
         jobId: existingJob._id,
         isCached: true
       });
@@ -121,7 +124,8 @@ exports.uploadData = async (req, res) => {
       timestamp: new Date()
     });
 
-    processFileAsync(job._id, req.file.path, JSON.parse(req.body.mapping));
+    // Pass the buffer from memory storage
+    processFileAsync(job._id, req.file.buffer, JSON.parse(req.body.mapping));
 
     res.status(202).json({ msg: 'File queued for processing', jobId: job._id });
 
